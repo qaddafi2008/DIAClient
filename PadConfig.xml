@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PadConfig>
+	<TableType>0</TableType>
+	<HotelName>酒店名称</HotelName>
+	<HotelLogo>酒店Logo文件名称</HotelLogo>
+	
+	<DatabaseVersion>
+		<ProduceSortVersion>0</ProduceSortVersion>
+		<ProduceVersion>0</ProduceVersion>
+		<RecommendVersion>0</RecommendVersion>
+		<SaleVersion>0</SaleVersion>
+		<ScrollDataVersion>0</ScrollDataVersion>
+	</DatabaseVersion>
+	
+	<ServerConfigure>
+		<ServerIP>192.168.0.1</ServerIP>
+		<ServerPort>9876</ServerPort>
+	</ServerConfigure>
+	
+	<LocalPort>9875</LocalPort>
+	<SkinStyle>default</SkinStyle>
+</PadConfig>
