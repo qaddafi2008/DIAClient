@@ -14,6 +14,7 @@ import cn.edu.pku.ss.bean.DIADoorContactMessage;
 import cn.edu.pku.ss.bean.DIAGasMessage;
 import cn.edu.pku.ss.bean.DIAHumidityMessage;
 import cn.edu.pku.ss.bean.DIALocationMessage;
+import cn.edu.pku.ss.bean.DIAMessage;
 import cn.edu.pku.ss.bean.DIAPhoneMessage;
 import cn.edu.pku.ss.bean.DIATemperatureMessage;
 import cn.edu.pku.ss.bean.Kind;
@@ -110,8 +111,7 @@ public class Starter {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		} catch (MessageFormatError e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		// TODO Auto-generated catch block			e.printStackTrace();
 		}
 		try {
 			Thread.sleep(2000);
@@ -139,10 +139,11 @@ public class Starter {
 		e.printStackTrace();
 	}*/
 		//事件处理——温度的循环监听//event-temperature
-		ContinuedEventProcessor ep = new ContinuedEventProcessor("ws://localhost:8080/DIAServer/core-socket","jerry","2012727");//new EventProcessor("ws://localhost:8080/DIAServer/core-socket","wilson","1234");
+		ContinuedEventProcessor ep = new ContinuedEventProcessor("ws://192.168.213.105:8080/DIAServer/core-socket","jerry","2012727");//new EventProcessor("ws://localhost:8080/DIAServer/core-socket","wilson","1234");
 		try {
 			ep.init();
 			ep.addEventGenerator("Temperature");//Gas
+			ep.addEventGenerator("Gas");//Gas
 		} catch (LoginFailure e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -165,13 +166,16 @@ public class Starter {
             public void onMessage(Map<String, String> msg) {
                 Util.traceEvent(msg);
                 Date date = new Date();
-    			System.out.println(msg.get(DIATemperatureMessage.VALUE_NAME)+"--Notify the client at "+date+" "+date.getTime());// DIAGasMessage.VALUE_NAME
+    			System.out.println(msg.get(msg.get(DIAMessage.TOPIC))+"--Notify the client at "+date+" "+date.getTime());// DIAGasMessage.VALUE_NAME
             	//Open Air Conditioning to let the room cool down
             }
 
 	};
 	try {
-		ep.addListener(l, "Select * From Temperature where Temperature > 10");////Select * From Gas
+		ep.addListener("Select * From Temperature where Temperature > 10");////Select * From Gas
+		ep.addListener("Select * From Gas where SENSOR_ID equals 03");
+		ep.addListener("Select * From Humidity");
+		ep.startListener(l);//start the thread that is used to receive message from the listeners in DIAServer
 	} catch (LoginFailure e) {
 		e.printStackTrace();
 	}catch (NoPermissionException e) {

@@ -130,7 +130,7 @@ public class EventProcessor {
 			// new a thread for the result.
 			t = new Thread(){
 				public void run() {
-					System.out.println("Listener Start!!");
+					System.out.println("Listener Thread Start!!");
 					while(true) {
 						byte[] bs;
 						try {

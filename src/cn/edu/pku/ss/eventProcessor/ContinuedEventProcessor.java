@@ -53,12 +53,12 @@ public class ContinuedEventProcessor {
 			ws.send(MD5andKL.KL("connect:" + username + password));
 			byte[] bs = ws.recv();
 			String s = new String(bs);
-			s=MD5andKL.JM(s);//edit by lin-wei-long
-			
+			s = MD5andKL.JM(s);// edit by lin-wei-long
+
 			if (!s.startsWith(ConstMessage.SUCCESS)) {
 				ws.close();
 				throw new LoginFailure();
-			}else{
+			} else {
 				app_num = s.replaceAll("Successful:", "");
 				conn = true;
 				System.out.println("Login Successfully");
@@ -75,17 +75,17 @@ public class ContinuedEventProcessor {
 		if (!conn)
 			throw new LoginFailure();
 		try {
-			ws.send(MD5andKL.KL(app_num +"@addGenerator:topic=" + topic));
+			ws.send(MD5andKL.KL(app_num + "@addGenerator:topic=" + topic));
 			byte[] bs = ws.recv();
 			String ss = new String(bs);
 			ss = MD5andKL.JM(ss);
 			if (ss.equals(ConstMessage.WRONG_MESSAGE)) {
 				// ws.close();
 				throw new MessageFormatError();
-			} else if(ss.equals(ConstMessage.NO_PERMISSION)){
+			} else if (ss.equals(ConstMessage.NO_PERMISSION)) {
 				System.out.println(ConstMessage.NO_EVENT_PERMISSION);
 				return false;
-			}else if (ss.equals(ConstMessage.SUCCESS)) {
+			} else if (ss.equals(ConstMessage.SUCCESS)) {
 				System.out.println("Successful");
 				eventPermission = true;
 				return true;
@@ -99,70 +99,75 @@ public class ContinuedEventProcessor {
 		return false;
 	}
 
-	public Thread addListener(final DIAListener listener, String epl)
-			throws LoginFailure,NoPermissionException {
+	public void addListener(String epl)
+			throws LoginFailure, NoPermissionException {
 		if (!conn)
 			throw new LoginFailure();
-		if(!eventPermission)
+		if (!eventPermission)
 			throw new NoPermissionException();
-		Thread t = null;
+		
 		try {
 			// Send command to the server. The command contains the EPL,Such as
 			// "Select * From Temperature where Temperature > 10"
 			ws.send(MD5andKL.KL(app_num + "@addListener:epl=" + epl));
 			// new a thread for the result.
-			t = new Thread() {
-				public void run() {
-					System.out.println("Listener Start!!");
-					while (true) {
-						byte[] bs;
-						try {
-							// When receive message from server, it will parse
-							// it.
-							bs = ws.recv();
-							System.out.println("Received: " + bs);
-							String ss = new String(bs);
-							ss = MD5andKL.JM(ss);
-							System.out.println("ContinuedEventProcessor Get: "
-									+ ss);
-							// The listener has started on the server, so the
-							// listener on the client should start too.
-							if (ss.equals("Start")) {
-								listener.onStarted();
-							} else if (ss.equals("CleanUp")) {
-								try {
-									listener.cleanUp();
-								} catch (Exception e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
-								}
-							} else {
-								// The listener is trigered on the server. Then,
-								// call the onMessage() and use the messge as
-								// the parameter.
-								Gson gson = new Gson();
-								Type type = new TypeToken<Map<String, String>>() {
-								}.getType();
-								Map<String, String> ms = gson
-										.fromJson(ss, type);
-								type = new TypeToken<String>() {
-								}.getType();
-								// String t = (String)(ms.get("Temperature"));
-								// System.out.println(t);
-								listener.onMessage(ms);
-								// return;//exist the thread.
-							}
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
-					}
-				}
-			};
-			t.start();
+			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+	}
+
+	public Thread startListener(final DIAListener listener) {
+		Thread t = null;
+
+		// new a thread for the result.
+		t = new Thread() {
+			public void run() {
+				System.out.println("Listener Thread Start!!");
+				while (true) {
+					byte[] bs;
+					try {
+						// When receive message from server, it will parse
+						// it.
+						bs = ws.recv();
+						System.out.println("Received: " + bs);
+						String ss = new String(bs);
+						ss = MD5andKL.JM(ss);
+						//System.out.println("ContinuedEventProcessor Get: " + ss);
+						// The listener has started on the server, so the
+						// listener on the client should start too.
+						if (ss.equals("Start")) {
+							listener.onStarted();
+						} else if (ss.equals("CleanUp")) {
+							try {
+								listener.cleanUp();
+							} catch (Exception e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+						} else {
+							// The listener is trigered on the server. Then,
+							// call the onMessage() and use the messge as
+							// the parameter.
+							Gson gson = new Gson();
+							Type type = new TypeToken<Map<String, String>>() {}.getType();
+							Map<String, String> ms = gson.fromJson(ss, type);
+							//type = new TypeToken<String>() {}.getType();
+							// String t = (String)(ms.get("Temperature"));
+							// System.out.println(t);
+							listener.onMessage(ms);
+							// return;//exist the thread.
+						}
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		};
+		t.start();
+
 		return t;
 	}
 
@@ -181,17 +186,15 @@ public class ContinuedEventProcessor {
 			throw new LoginFailure();
 		try {
 			synchronized (ws) {
-				ws.send(MD5andKL.KL(app_num + "@controlLoudspeaker:topic=Command" + "&command="
+				ws.send(MD5andKL.KL(app_num
+						+ "@controlLoudspeaker:topic=Command" + "&command="
 						+ command));
-				/*byte[] bs = ws.recv();
-				String ss = new String(bs);
-				if (ss.equals("Wrong message")) {
-					// ws.close();
-					throw new MessageFormatError();
-				} else if (ss.equals("Successful")) {
-					System.out.println("Successful");
-					return true;
-				}*/
+				/*
+				 * byte[] bs = ws.recv(); String ss = new String(bs); if
+				 * (ss.equals("Wrong message")) { // ws.close(); throw new
+				 * MessageFormatError(); } else if (ss.equals("Successful")) {
+				 * System.out.println("Successful"); return true; }
+				 */
 			}
 
 		} catch (IOException e) {
@@ -217,16 +220,14 @@ public class ContinuedEventProcessor {
 			throw new LoginFailure();
 		try {
 			synchronized (ws) {
-				ws.send(MD5andKL.KL(app_num + "@sendAudioToPhone:topic=Command" + "&command="
-						+ command));
-				/*byte[] bs = ws.recv();
-				String ss = new String(bs);
-				if (ss.equals("Wrong message")) {
-					throw new MessageFormatError();
-				} else if (ss.equals("Successful")) {
-					System.out.println("Successful");
-					return true;
-				}*/
+				ws.send(MD5andKL.KL(app_num + "@sendAudioToPhone:topic=Command"
+						+ "&command=" + command));
+				/*
+				 * byte[] bs = ws.recv(); String ss = new String(bs); if
+				 * (ss.equals("Wrong message")) { throw new
+				 * MessageFormatError(); } else if (ss.equals("Successful")) {
+				 * System.out.println("Successful"); return true; }
+				 */
 			}
 
 		} catch (IOException e) {
@@ -252,15 +253,15 @@ public class ContinuedEventProcessor {
 		if (!conn)
 			throw new LoginFailure();
 		try {
-			ws.send(MD5andKL.KL(app_num + "@control:topic=Command" + "&sensorID=" + sensorID
-					+ "&command=" + command));
+			ws.send(MD5andKL.KL(app_num + "@control:topic=Command"
+					+ "&sensorID=" + sensorID + "&command=" + command));
 			byte[] bs = ws.recv();
 			String ss = new String(bs);
 			ss = MD5andKL.JM(ss);
 			if (ss.equals(ConstMessage.WRONG_MESSAGE)) {
 				// ws.close();
 				throw new MessageFormatError();
-			}else if(ss.equals(ConstMessage.NO_PERMISSION)){
+			} else if (ss.equals(ConstMessage.NO_PERMISSION)) {
 				System.out.println(ConstMessage.NO_COMMAND_PERMISSION);
 			} else if (ss.equals(ConstMessage.SUCCESS)) {
 				System.out.println("Successful");
