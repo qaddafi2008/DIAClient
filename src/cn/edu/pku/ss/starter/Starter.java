@@ -139,9 +139,9 @@ public class Starter {
 		e.printStackTrace();
 	}*/
 		//事件处理——温度的循环监听//event-temperature
-		ContinuedEventProcessor ep = new ContinuedEventProcessor("ws://192.168.213.105:8080/DIAServer/core-socket","jerry","2012727");//new EventProcessor("ws://localhost:8080/DIAServer/core-socket","wilson","1234");
+		ContinuedEventProcessor ep = null;
 		try {
-			ep.init();
+			ep = ContinuedEventProcessor.getInstance("ws://192.168.213.105:8080/DIAServer/core-socket","jerry","2012727");//new EventProcessor("ws://localhost:8080/DIAServer/core-socket","wilson","1234");
 			ep.addEventGenerator("Temperature");//Gas
 			ep.addEventGenerator("Gas");//Gas
 		} catch (LoginFailure e1) {
@@ -168,6 +168,15 @@ public class Starter {
                 Date date = new Date();
     			System.out.println(msg.get(msg.get(DIAMessage.TOPIC))+"--Notify the client at "+date+" "+date.getTime());// DIAGasMessage.VALUE_NAME
             	//Open Air Conditioning to let the room cool down
+    			try {
+					ContinuedEventProcessor.getInstance("ws://192.168.213.105:8080/DIAServer/core-socket","jerry","2012727").sendCommand("16", "1601234$");
+				} catch (LoginFailure e) {
+					
+					e.printStackTrace();
+				} catch (MessageFormatError e) {
+					
+					e.printStackTrace();
+				}
             }
 
 	};

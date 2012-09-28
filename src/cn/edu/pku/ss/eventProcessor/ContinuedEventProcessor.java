@@ -11,6 +11,7 @@ import java.util.Map;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.sun.org.apache.regexp.internal.recompile;
 
 import cn.edu.pku.ss.bean.DIALocationMessage;
 import cn.edu.pku.ss.exception.LoginFailure;
@@ -27,15 +28,24 @@ import dk.itu.infobus.ws.ListenerToken;
  * @author qinhuiwang use this processor, the listener can continue working
  */
 public class ContinuedEventProcessor {
-	URI uri;
-	WebSocket ws;
-	String username;
-	String password;
-	boolean conn = false;
-	boolean eventPermission = false;
-	String app_num;
+	private URI uri;
+	private WebSocket ws;
+	private String username;
+	private String password;
+	private boolean conn = false;
+	private boolean eventPermission = false;
+	private String app_num;
+	private static ContinuedEventProcessor singleton = null;
+	
+	public static ContinuedEventProcessor getInstance(String s, String username, String password)throws LoginFailure{
+		if(null == singleton){
+			singleton=new ContinuedEventProcessor(s, username, password);
+			singleton.init();
+		}
+		return singleton;
+	}
 
-	public ContinuedEventProcessor(String s, String username, String password) {
+	private ContinuedEventProcessor(String s, String username, String password) {
 		try {
 			uri = new URI(s);
 			ws = new WebSocket(uri);
@@ -47,7 +57,7 @@ public class ContinuedEventProcessor {
 		this.password = MD5andKL.MD5(password);
 	}
 
-	public void init() throws LoginFailure {
+	private void init() throws LoginFailure {
 		try {
 			ws.connect();
 			ws.send(MD5andKL.KL("connect:" + username + password));
@@ -119,12 +129,12 @@ public class ContinuedEventProcessor {
 		
 	}
 
-	public Thread startListener(final DIAListener listener) {
+	public Thread startListener(final DIAListener listener){
 		Thread t = null;
 
 		// new a thread for the result.
 		t = new Thread() {
-			public void run() {
+			public void run(){
 				System.out.println("Listener Thread Start!!");
 				while (true) {
 					byte[] bs;
@@ -132,7 +142,7 @@ public class ContinuedEventProcessor {
 						// When receive message from server, it will parse
 						// it.
 						bs = ws.recv();
-						System.out.println("Received: " + bs);
+						//System.out.println("Received: " + bs);
 						String ss = new String(bs);
 						ss = MD5andKL.JM(ss);
 						//System.out.println("ContinuedEventProcessor Get: " + ss);
@@ -147,7 +157,15 @@ public class ContinuedEventProcessor {
 								// TODO Auto-generated catch block
 								e.printStackTrace();
 							}
-						} else {
+						}else if (ss.equals(ConstMessage.WRONG_MESSAGE)) {
+							System.err.println("The message format is wrong!");
+						} else if(ss.equals(ConstMessage.NO_PERMISSION)){
+							System.err.println(ConstMessage.NO_COMMAND_PERMISSION);
+							
+						}else if (ss.equals(ConstMessage.SUCCESS)) {
+							System.out.println("Successful");
+							
+						}else {
 							// The listener is trigered on the server. Then,
 							// call the onMessage() and use the messge as
 							// the parameter.
