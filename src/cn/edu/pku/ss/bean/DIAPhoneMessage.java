@@ -7,7 +7,7 @@ public class DIAPhoneMessage extends DIAMessage {
 	 * 
 	 */
 	private static final long serialVersionUID = 4715321712576609315L;
-	public static final String VALUE_NAME ="phoneInfo";
+	public static final String VALUE_NAME ="Phone";
 	//String phoneInfo;
 	public DIAPhoneMessage(String createTime, String diveiceID,
 			String sensorName, int eventTimeOut, String eventType,

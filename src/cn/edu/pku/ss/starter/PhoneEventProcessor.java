@@ -6,7 +6,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
-
+/**
+ * 
+ * @author qhwang
+ * This class is not used now!
+ */
 public class PhoneEventProcessor {
 	private static final String QHWANG_PHONE ="E0:D7:BA:F2:2C:FD";
 	private static final String RTANG_PHONE ="0C:74:C2:14:BB:9B";

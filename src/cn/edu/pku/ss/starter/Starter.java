@@ -139,7 +139,7 @@ public class Starter {
 		e.printStackTrace();
 	}*/
 		//事件处理——温度的循环监听//event-temperature
-		ContinuedEventProcessor ep = null;
+		/*ContinuedEventProcessor ep = null;
 		try {
 			ep = ContinuedEventProcessor.getInstance("ws://192.168.213.105:8080/DIAServer/core-socket","jerry","2012727");//new EventProcessor("ws://localhost:8080/DIAServer/core-socket","wilson","1234");
 			ep.addEventGenerator("Temperature");//Gas
@@ -189,13 +189,13 @@ public class Starter {
 		e.printStackTrace();
 	}catch (NoPermissionException e) {
 		e.printStackTrace();
-	}
+	}*/
 		
 	
 		//事件处理-手机//event-phone detected
-		/*ContinuedEventProcessor ep = new ContinuedEventProcessor("ws://localhost:8080/DIAServer/core-socket","jerry","2012727");//new EventProcessor("ws://localhost:8080/DIAServer/core-socket","wilson","1234");
+		ContinuedEventProcessor ep = null;
 		try {
-			ep.init();
+			ep = ContinuedEventProcessor.getInstance("ws://192.168.213.105:8080/DIAServer/core-socket","jerry","2012727");//new EventProcessor("ws://localhost:8080/DIAServer/core-socket","wilson","1234");;//new EventProcessor("ws://localhost:8080/DIAServer/core-socket","wilson","1234");
 			ep.addEventGenerator("Phone");
 		} catch (LoginFailure e1) {
 			// TODO Auto-generated catch block
@@ -233,11 +233,12 @@ public class Starter {
 
 	};
 	try {
-		ep.addListener(l, "Select * From Phone");
+		ep.addListener("Select * From Phone");
+		ep.startListener(l);
 	} catch (Exception e) {
 		// TODO Auto-generated catch block
 		e.printStackTrace();
-	}*/
+	}
 		
 /*		DIAController c = new DIAController("ws://192.168.1.107:8080/DIAServer/core-socket","wilson","1234");
 		try {

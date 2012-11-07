@@ -255,6 +255,39 @@ public class ContinuedEventProcessor {
 
 		return false;
 	}
+	
+	/**
+	 * 发送控制命令：根据command中包含的音频文件名生成对应的URL，发送给所有指定蓝牙地址的手机，并让手机自动播放
+	 * 
+	 * @param command
+	 *            控制命令，形如“蓝牙1/蓝牙2/蓝牙3>abc.mp3”
+	 * @return 发送成功或失败
+	 * @throws LoginFailure
+	 * @throws MessageFormatError
+	 */
+	public boolean sendSameAudioToPhoneCommand(String command) throws LoginFailure,
+			MessageFormatError {
+		if (!conn)
+			throw new LoginFailure();
+		try {
+			synchronized (ws) {
+				ws.send(MD5andKL.KL(app_num + "@sendSameAudioToPhones:topic=Command"
+						+ "&command=" + command));
+				/*
+				 * byte[] bs = ws.recv(); String ss = new String(bs); if
+				 * (ss.equals("Wrong message")) { throw new
+				 * MessageFormatError(); } else if (ss.equals("Successful")) {
+				 * System.out.println("Successful"); return true; }
+				 */
+			}
+
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return false;
+	}
 
 	/**
 	 * 
